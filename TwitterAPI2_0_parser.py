@@ -14,26 +14,34 @@ import glob
 import sys
 
 
-base_dir =  input("Enter the directory path of your JSON files here: ")
-output_dir =  input("Enter the directory path of your csv output file here: ")
-output_name = input("Enter your csv output file name here: ")
 
 def main():
+    base_dir =  input("Enter the directory path of your JSON files here: ")
+    output_dir =  input("Enter the directory path of your csv output file here: ")
+    output_name = input("Enter your csv output file name here: ")
+
     all_files = glob.glob(os.path.join(base_dir, "*.json"))
+    parsed_data = pd.concat(parse(all_files), ignore_index=True) #concat all the dataframes in the list into one dataframe
+    print("Total length: " + str(len(parsed_data)))
+    parsed_data.to_csv(output_dir + output_name)
+
+def parse(all_files):
     parsed_df = []
-    for file in all_files: #Every single JSON file inside one folder
+    for file in all_files:
         with open(file) as f:
             for index, line in enumerate(f.readlines()):
-                json_data = twarc.expansions.flatten(json.loads(line))
-                df = pd.json_normalize(json_data)
-                df = extract_referenced_tweets(df)
-                df = add_full_text(df)
+                df = frame_from_json(line)
                # df = extract_expanded_urls(df)
                # df = extract_media_urls(df)
                 parsed_df.append(df)
-    parsed_data = pd.concat(parsed_df, ignore_index=True) #concat all the dataframes in the list into one dataframe
-    print("Total length: " + str(len(parsed_data)))
-    parsed_data.to_csv(output_dir + output_name)
+    return parsed_df
+
+def frame_from_json(line):
+    json_data = twarc.expansions.flatten(json.loads(line))
+    df = pd.json_normalize(json_data)
+    df = extract_referenced_tweets(df)
+    df = add_full_text(df)
+    return df
 
 #Add RT section to the full texts in the dataframe
 def add_full_text(df):
