@@ -26,15 +26,21 @@ def main():
     parsed_data.to_csv(output_dir + output_name)
 
 def parse(all_files):
-    parsed_df = []
+    master_df = []
     for file in all_files:
         with open(file) as f:
             for index, line in enumerate(f.readlines()):
-                df = frame_from_json(line)
-               # df = extract_expanded_urls(df)
-               # df = extract_media_urls(df)
-                parsed_df.append(df)
-    return parsed_df
+                append_valid_to_master_frame(master_df, line) 
+    return master_df
+
+def append_valid_to_master_frame(parsed_df, line):
+    try:
+        df = frame_from_json(line)
+        # df = extract_expanded_urls(df)
+        # df = extract_media_urls(df)
+        parsed_df.append(df)
+    except ValueError: 
+        print("ValueError; probably metadata: ignored")
 
 def frame_from_json(line):
     json_data = twarc.expansions.flatten(json.loads(line))

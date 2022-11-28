@@ -1,6 +1,6 @@
 import unittest
 
-from TwitterAPI2_0_parser import frame_from_json
+from TwitterAPI2_0_parser import append_valid_to_master_frame, frame_from_json
 
 class TestSum(unittest.TestCase):
     def test_frame_from_json_handles_json(self):
@@ -14,11 +14,11 @@ class TestSum(unittest.TestCase):
         }"""
         self.assertEqual(frame_from_json(valid_json).empty, False)
 
-    def test_frame_from_json_handles_invalid_json(self):
+    def test_append_valid_to_master_frame(self):
         invalid_json = """{
             "query": "foo"
         }"""
-        self.assertEqual(frame_from_json(invalid_json).empty, False)
+        append_valid_to_master_frame(invalid_json, "x")
 
 if __name__ == '__main__':
     unittest.main()
